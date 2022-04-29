@@ -32,6 +32,7 @@ done
 LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -z 's/\r\n/LINEFEED/g')
 LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -z 's/\n/LINEFEED/g')
 LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -z 's/\"/\\\"/g')
+LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -z 's/\'/\\\'/g')
 LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -z 's/\//\\\//g')
 
 LOG_TEMPLATE='{"@t":"CURRENT_TIME","@l":"LOG_LEVEL","@mt":"LOG_TITLE","@x":"LOG_MESSAGE","MachineName":"HOSTNAME"}'

@@ -29,7 +29,7 @@ while getopts ":l:t:x:k:f:s:" opt; do
   esac
 done
 
-LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -e 's/[^ a-zA-Z0-9,._+@%/-]/\\&/g' | sed -z 's/\n/LINEFEED/g')
+LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -e 's/[^ a-zA-Z0-9,._+@%-]/\\&/g' | sed -z 's/\n/LINEFEED/g')
 
 LOG_TEMPLATE='{"@t":"CURRENT_TIME","@l":"LOG_LEVEL","@mt":"LOG_TITLE","@x":"LOG_MESSAGE","MachineName":"HOSTNAME"}'
 

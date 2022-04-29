@@ -49,7 +49,7 @@ LOG_TEMPLATE=$(echo -e "$LOG_TEMPLATE" | sed -z 's/LINEFEED/\\n/g')
 
 echo "Posting to Seq..."
 
-CURL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "X-Seq-ApiKey: $SEQ_API_KEY" -H "Content-Type: application/vnd.serilog.clef" "${SEQ_SERVER}api/events/raw" -d @- << EOF
+CURL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "X-Seq-ApiKey: $SEQ_API_KEY" -H "Content-Type: application/vnd.serilog.clef" "${SEQ_SERVER%/}/api/events/raw" -d @- << EOF
 $LOG_TEMPLATE
 EOF
 )

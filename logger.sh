@@ -22,33 +22,38 @@ while getopts ":l:t:x:k:f:s:" opt; do
     ;;
     k) SEQ_API_KEY="$OPTARG"
     ;;
-    f) LOG_ENTRY=$(cat "$OPTARG")
+    #f) LOG_ENTRY=$(cat "$OPTARG")
+    f) LOG_FILE="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
   esac
 done
 
-LOG_ENTRY=$(echo -e "$LOG_ENTRY" | sed -e 's/[^ a-zA-Z0-9]/\\&/g' | sed -z 's/\n/LINEFEED/g')
+echo "Populating template"
 
-LOG_TEMPLATE='{"@t":"CURRENT_TIME","@l":"LOG_LEVEL","@mt":"LOG_TITLE","@x":"LOG_MESSAGE","MachineName":"HOSTNAME"}'
+LOG_TEMPLATE_START="{\"@t\":\"$CURRENT_TIME\",\"@l\":\"$LOG_LEVEL\",\"@mt\":\"$LOG_TITLE\",\"@x\":\""
+LOG_TEMPLATE_END="\",\"MachineName\":\"$HOSTNAME\"}"
 
-echo "Applying template"
+echo "Preparing event to post to Seq..."
 
-LOG_TEMPLATE=$(echo -e "$LOG_TEMPLATE" \
-    | sed -z "s/CURRENT_TIME/$CURRENT_TIME/g" \
-    | sed -z "s/HOSTNAME/$HOSTNAME/g" \
-    | sed -z "s/LOG_TITLE/$LOG_TITLE/g" \
-    | sed -z "s/LOG_LEVEL/$LOG_LEVEL/g" \
-    | sed -z "s/LOG_MESSAGE/$LOG_ENTRY/g")
+echo -n $LOG_TEMPLATE_START > /request.txt
+if [ "$LOG_FILE" == "" ]; then
+echo -e "$LOG_ENTRY" | sed -e 's/[^ a-zA-Z0-9_.=-]/\\\\&/g' >> /request.txt
 
-LOG_TEMPLATE=$(echo -e "$LOG_TEMPLATE" | sed -z 's/LINEFEED/\\n/g')
+else
+
+sed -i 's/\/\\"/g' $LOG_FILE
+sed -i 's/"/\\"/g' $LOG_FILE
+sed -i ':a;N;$!ba;s/\r\n/\\n/g' $LOG_FILE
+sed -i ':a;N;$!ba;s/\n/\\n/g' $LOG_FILE
+
+cat $LOG_FILE >> /request.txt
+fi
+echo -n $LOG_TEMPLATE_END >> /request.txt
 
 echo "Posting to Seq..."
 
-CURL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "X-Seq-ApiKey: $SEQ_API_KEY" -H "Content-Type: application/vnd.serilog.clef" "${SEQ_SERVER%/}/api/events/raw" -d @- << EOF
-$LOG_TEMPLATE
-EOF
-)
+CURL_RESPONSE=$(curl -s -w "%{http_code}" -X POST -H "X-Seq-ApiKey: $SEQ_API_KEY" -H "Content-Type: application/vnd.serilog.clef" "${SEQ_SERVER%/}/api/events/raw" -d @/request.txt)
 
 echo "Response from Seq: $CURL_RESPONSE"

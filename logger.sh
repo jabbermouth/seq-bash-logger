@@ -23,7 +23,7 @@ while getopts ":l:t:x:k:f:s:o:" opt; do
     ;;
     k) SEQ_API_KEY="$OPTARG"
     ;;
-    k) LOG_ORIGIN="$OPTARG"
+    o) LOG_ORIGIN="$OPTARG"
     ;;
     #f) LOG_ENTRY=$(cat "$OPTARG")
     f) LOG_FILE="$OPTARG"

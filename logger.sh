@@ -5,12 +5,13 @@ echo "Preparing log event for Seq..."
 CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S.%NZ")
 LOG_TITLE="Event on {MachineName}"
 LOG_LEVEL=Information
+LOG_ORIGIN="Bash-based Seq injection script"
 
 if [ "$SEQ_SERVER" == "" ]; then
 SEQ_SERVER="http://host.docker.internal:5341/"
 fi
 
-while getopts ":l:t:x:k:f:s:" opt; do
+while getopts ":l:t:x:k:f:s:o:" opt; do
   case $opt in
     l) LOG_LEVEL="$OPTARG"
     ;;
@@ -21,6 +22,8 @@ while getopts ":l:t:x:k:f:s:" opt; do
     s) SEQ_SERVER="$OPTARG"
     ;;
     k) SEQ_API_KEY="$OPTARG"
+    ;;
+    k) LOG_ORIGIN="$OPTARG"
     ;;
     #f) LOG_ENTRY=$(cat "$OPTARG")
     f) LOG_FILE="$OPTARG"
@@ -33,7 +36,7 @@ done
 echo "Populating template"
 
 LOG_TEMPLATE_START="{\"@t\":\"$CURRENT_TIME\",\"@l\":\"$LOG_LEVEL\",\"@mt\":\"$LOG_TITLE\",\"@x\":\""
-LOG_TEMPLATE_END="\",\"MachineName\":\"$HOSTNAME\"}"
+LOG_TEMPLATE_END="\",\"MachineName\":\"$HOSTNAME\",\"Source\":\"$LOG_ORIGIN\"}"
 
 echo "Preparing event to post to Seq..."
 

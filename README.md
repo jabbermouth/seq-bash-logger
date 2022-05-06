@@ -31,3 +31,7 @@ Then send to Seq with:
 ```
 bash logger.sh -f log.txt
 ```
+**Note:** This overrides the -x property.
+
+### `-o <source>`
+This is the value of the source to log into Seq.
